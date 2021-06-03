@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { Dimensions, View, ActivityIndicator, StyleSheet } from 'react-native'
 import styled from 'styled-components/native'
 import * as MediaLibrary from 'expo-media-library'
-import { Asset, AssetsOptions, getAssetsAsync } from 'expo-media-library'
+import { addListener, Asset, AssetsOptions, getAssetsAsync } from 'expo-media-library'
 import { AssetsSelectorList } from './AssetsSelectorList'
 import { DefaultTopNavigator } from './DefaultTopNavigator'
 import * as ImageManipulator from 'expo-image-manipulator'
@@ -126,6 +126,28 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
             // err with try and catch block
         }
     }
+
+    const handlePermissionsChanged = useCallback(async (event) => {
+        if (!event.hasIncrementalChanges) {
+            setItems([])
+            setAvailableOptions({
+                first: 500,
+                totalCount: 0,
+                after: '',
+                endCursor: '',
+                hasNextPage: true,
+            })
+            getAssets()
+        }
+    }, [])
+
+    useEffect(() => {
+        const subscription = addListener(handlePermissionsChanged)
+
+        return function removeListener() {
+            subscription.remove()
+        }
+    }, [])
 
     const resizeImages = async (
         image: Asset,
