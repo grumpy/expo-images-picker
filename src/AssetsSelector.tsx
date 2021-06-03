@@ -81,9 +81,9 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
     const getMediaLibraryPermission = useCallback(async () => {
         const { status: MEDIA_LIBRARY }: any = await MediaLibrary.requestPermissionsAsync()
 
-        setPermissions({
-            hasMediaLibraryPermission: MEDIA_LIBRARY === 'granted'
-        })
+        const hasMediaLibraryPermission = MEDIA_LIBRARY === 'granted';
+        setPermissions({hasMediaLibraryPermission})
+        return hasMediaLibraryPermission;
     }, [])
 
     const onClickUseCallBack = useCallback((id: string) => {
@@ -113,7 +113,10 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
                     params.after = availableOptions.after
                 if (!availableOptions.hasNextPage) return
 
-                return getMediaLibraryPermission().then(() => loadAssets(params));
+                return getMediaLibraryPermission().then((hasMediaLibraryPermission) => {
+                    if (hasMediaLibraryPermission)
+                        loadAssets(params);
+                })
             }
         } catch (err) {
             // need to add component that display where there is an error
