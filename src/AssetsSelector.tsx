@@ -99,10 +99,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
 
     useEffect(() => {
         getAssets()
-    }, [
-        assetsType,
-        permissions.hasMediaLibraryPermission,
-    ])
+    }, [])
 
     const getAssets = () => {
         try {
@@ -116,9 +113,7 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
                     params.after = availableOptions.after
                 if (!availableOptions.hasNextPage) return
 
-                return permissions.hasMediaLibraryPermission
-                    ? loadAssets(params)
-                    : getMediaLibraryPermission()
+                return getMediaLibraryPermission().then(() => loadAssets(params));
             }
         } catch (err) {
             // need to add component that display where there is an error
@@ -129,14 +124,6 @@ const AssetsSelector = ({ options }: IAssetPickerOptions): JSX.Element => {
 
     const handlePermissionsChanged = useCallback(async (event) => {
         if (!event.hasIncrementalChanges) {
-            setItems([])
-            setAvailableOptions({
-                first: 500,
-                totalCount: 0,
-                after: '',
-                endCursor: '',
-                hasNextPage: true,
-            })
             getAssets()
         }
     }, [])
